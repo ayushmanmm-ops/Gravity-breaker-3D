@@ -1,23 +1,41 @@
+
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <title>Home</title>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width" />
-    <!--
-      Need a visual blank slate?
-      Remove all code in `styles.css`!
-    -->
-    <link rel="stylesheet" href="styles.css" />
-    <script type="module" src="script.js"></script>
-  </head>
-  <body>
-    <nav>
-      <a href="/" aria-current="page">Home</a>
-      <a href="/page2.html">Other page</a>
-    </nav>
-    <main>
-      <h1>Home page</h1>
-    </main>
-  </body>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#03030c">
+
+  <title>GRAVITY BREAK | 3D Space Survival</title>
+
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js"
+      }
+    }
+  </script>
+
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+  <div id="game-container"></div>
+
+  <div id="hud">
+    <div class="logo">
+      GRAVITY <span>BREAK</span>
+    </div>
+
+    <div class="subtitle">
+      THE UNIVERSE IS COLLAPSING
+    </div>
+
+    <div id="status">
+      INITIALIZING SPACE ENVIRONMENT...
+    </div>
+  </div>
+
+  <script type="module" src="script.js"></script>
+</body>
 </html>
