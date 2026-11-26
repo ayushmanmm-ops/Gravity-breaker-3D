@@ -392,17 +392,102 @@ document.body.appendChild(gameOverScreen);
 // ASTEROID CREATION
 // ==========================================
 
+
 function createAsteroid() {
-  const geometry = new THREE.IcosahedronGeometry(
-    1,
-    Math.random() > 0.5 ? 1 : 2
-  );
+  // Create a detailed rocky texture once and reuse it
+  if (!createAsteroid.rockTexture) {
+    const canvas = document.createElement("canvas");
+    canvas.width = 1024;
+    canvas.height = 512;
+
+    const ctx = canvas.getContext("2d");
+
+    ctx.fillStyle = "#51483f";
+    ctx.fillRect(0, 0, 1024, 512);
+
+    // Natural rocky surface noise
+    const image = ctx.getImageData(0, 0, 1024, 512);
+    const pixels = image.data;
+
+    for (let i = 0; i < pixels.length; i += 4) {
+      const noise = (Math.random() - 0.5) * 55;
+
+      pixels[i] += noise;
+      pixels[i + 1] += noise;
+      pixels[i + 2] += noise;
+    }
+
+    ctx.putImageData(image, 0, 0);
+
+    // Add irregular impact craters
+    for (let i = 0; i < 95; i++) {
+      const x = Math.random() * 1024;
+      const y = Math.random() * 512;
+      const radius = 5 + Math.random() * 30;
+
+      const gradient = ctx.createRadialGradient(
+        x - radius * 0.2,
+        y - radius * 0.2,
+        radius * 0.1,
+        x,
+        y,
+        radius
+      );
+
+      gradient.addColorStop(0, "#252321");
+      gradient.addColorStop(0.55, "#39332e");
+      gradient.addColorStop(0.82, "#77695a");
+      gradient.addColorStop(1, "#39332e");
+
+      ctx.fillStyle = gradient;
+      ctx.beginPath();
+      ctx.ellipse(
+        x,
+        y,
+        radius,
+        radius * (0.6 + Math.random() * 0.4),
+        Math.random() * Math.PI,
+        0,
+        Math.PI * 2
+      );
+      ctx.fill();
+    }
+
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.colorSpace = THREE.SRGBColorSpace;
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
+
+    createAsteroid.rockTexture = texture;
+  }
+
+  const geometry = new THREE.IcosahedronGeometry(1, 4);
+  const positions = geometry.attributes.position;
+
+  // Give every asteroid an irregular silhouette
+  for (let i = 0; i < positions.count; i++) {
+    const x = positions.getX(i);
+    const y = positions.getY(i);
+    const z = positions.getZ(i);
+
+    const variation =
+      Math.sin(x * 17 + y * 9) *
+      Math.cos(y * 13 + z * 11) *
+      Math.sin(z * 15 + x * 8);
+
+    const scale = 1 + variation * 0.10;
+
+    positions.setXYZ(i, x * scale, y * scale, z * scale);
+  }
+
+  geometry.computeVertexNormals();
 
   const material = new THREE.MeshStandardMaterial({
-    color: 0x687080,
-    roughness: 0.95,
-    metalness: 0.2,
-    flatShading: true
+    map: createAsteroid.rockTexture,
+    bumpMap: createAsteroid.rockTexture,
+    bumpScale: 0.18,
+    roughness: 1,
+    metalness: 0.04
   });
 
   const asteroid = new THREE.Mesh(geometry, material);
@@ -412,7 +497,7 @@ function createAsteroid() {
   asteroid.scale.set(
     size,
     size * (0.7 + Math.random() * 0.6),
-    size
+    size * (0.75 + Math.random() * 0.5)
   );
 
   asteroid.position.set(
@@ -438,6 +523,8 @@ function createAsteroid() {
   scene.add(asteroid);
   asteroids.push(asteroid);
 }
+
+
 
 // ==========================================
 // ENERGY ORB CREATION
